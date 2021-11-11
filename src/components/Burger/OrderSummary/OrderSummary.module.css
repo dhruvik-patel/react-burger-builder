@@ -1,0 +1,13 @@
+.OrderSummary{
+    width: 100%;
+    text-align: center;
+}
+
+.OrderSummary h3{
+    text-decoration: underline;
+}
+
+.OrderSummary li{
+    list-style: none;
+    margin: 5px 0;
+}
