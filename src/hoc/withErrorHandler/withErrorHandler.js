@@ -5,21 +5,20 @@ const withErrorHandler = (WrappedComponent, axios) => {
     return (props) => {
 
         const [error,setError] = useState(null)
-        let reqInterceptor
-        let resInterceptor
 
         useEffect(() => {
-            reqInterceptor = axios.interceptors.request.use(req => {
+
+            let reqInterceptor = axios.interceptors.request.use(req => {
                                 setError(null)
                             })
-            resInterceptor = axios.interceptors.response.use(res => res, err => {
+            let resInterceptor = axios.interceptors.response.use(res => res, err => {
                                 setError(err)
                             })
 
             return () => {
-                console.log('Unmount',reqInterceptor,resInterceptor)
+                // console.log('Unmount',reqInterceptor,resInterceptor)
                 axios.interceptors.request.eject(reqInterceptor)
-                axios.interceptors.response.eject(reqInterceptor)
+                axios.interceptors.response.eject(resInterceptor)
             }
         },[])
 
