@@ -22,12 +22,12 @@ export const purchaseBurgerStart = () => {
     }
 }
 
-export const purchaseBurger = (orderData) => {
+export const purchaseBurger = (orderData,token) => {
     return dispatch => {
         dispatch(purchaseBurgerStart())
-        axios.post('https://burger-builder-dhruvik-default-rtdb.asia-southeast1.firebasedatabase.app/order.json', orderData)
+        axios.post('/order.json?auth='+token, orderData)
             .then(res => {
-                console.log("[Before purchase Success]: ", res)
+                // console.log("[Before purchase Success]: ", res)
                 dispatch(purchaseBurgerSuccess(res.data.name, orderData))
             })
             .catch(error => {
@@ -63,10 +63,11 @@ export const fetchOrderStart = () => {
     }
 }
 
-export const fetchOrders = (dispatch) => {
+export const fetchOrders = (token, userId) => {
     return dispatch => {
         dispatch(fetchOrderStart())
-        axios.get('/order.json')
+        const queryParams = '?auth=' + token + '&orderBy="userId"&equalTo="' + userId + '"'  
+        axios.get('/order.json' + queryParams)
             .then((res) => {
                 const fetchedOrders = []
                 for (let key in res.data) {

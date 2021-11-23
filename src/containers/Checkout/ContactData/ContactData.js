@@ -5,6 +5,7 @@ import Spinner from '../../../components/UI/Spinner/Spinner'
 import Input from '../../../components/UI/Input/Input'
 import {connect} from 'react-redux'
 import * as actions from '../../../store/actions/index'
+import { updateObject, checkValidity } from '../../../shared/utility'
 
 export class ContactData extends Component {
 
@@ -93,32 +94,13 @@ export class ContactData extends Component {
         formIsValid: false,
     }
 
-    checkValidity = (value, rules) => {
-        let isValid = true
-        if(rules.required){
-            isValid = value.trim() !== '' && isValid
-        }
-        if (rules.minLength) {
-            isValid = value.length >= rules.minLength && isValid
-        }
-        if (rules.maxLength) {
-            isValid = value.length <= rules.maxLength && isValid
-        }
-
-        return isValid
-    }
-
     inputChangeHandler = (event, inputIndentifier) => {
-        const updatedOrderForm = {
-            ...this.state.orderForm
-        }
-        const updatedFormElement = {
-            ...updatedOrderForm[inputIndentifier]
-        }
-        updatedFormElement.value = event.target.value
-        updatedFormElement.touched = true
-        updatedFormElement.valid = this.checkValidity(updatedFormElement.value,updatedFormElement.validation)
-        updatedOrderForm[inputIndentifier] = updatedFormElement
+        const updatedFormElement = updateObject(this.state.orderForm[inputIndentifier], {
+            value: event.target.value,
+            valid: checkValidity(event.target.value, this.state.orderForm[inputIndentifier].validation),
+            touched: true
+        })
+        const updatedOrderForm = updateObject(this.state.orderForm, { [inputIndentifier]: updatedFormElement} )
         
         let formIsValid = true
         for(let inputIndentifier in updatedOrderForm){
@@ -137,10 +119,11 @@ export class ContactData extends Component {
         const order = {
             ingredients: this.props.ings,
             price: this.props.price,
-            orderData: formData
+            orderData: formData,
+            userId: this.props.userId
         }
         // console.log(order)
-        this.props.onOrderBurger(order)
+        this.props.onOrderBurger(order,this.props.token)
         
     }
     
@@ -184,13 +167,15 @@ const mapStateToProps = (state) => {
     return {
         ings: state.burgerBuilder.ingredients,
         price: state.burgerBuilder.totalPrice,
-        loading: state.order.loading
+        loading: state.order.loading,
+        token: state.auth.token,
+        userId: state.auth.userId
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        onOrderBurger: (orderData) => dispatch(actions.purchaseBurger(orderData))
+        onOrderBurger: (orderData,token) => dispatch(actions.purchaseBurger(orderData,token))
     }
 }
 
